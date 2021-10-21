@@ -28,4 +28,5 @@ public class FavoriteDataDaoImpl extends BasicDaoImpl<FavoriteDataDto> implement
 		return this.queryIndex(FavoriteDataDto.class, DynamoDBConstant.LSI_ONE_NAME, DynamoDBConstant.LSI_ONE_RANGE_KEY,
 				false, FavoriteDataDto.builder().userId(userId).build(), asc, lastLoadSk, size);
 	}
+
 }

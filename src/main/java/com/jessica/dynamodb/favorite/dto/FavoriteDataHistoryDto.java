@@ -23,51 +23,57 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @DynamoDBTable(tableName = "develop.Favorite")
 @EqualsAndHashCode(callSuper = false)
-public class FavoriteDataTagDto extends AbstractDto {
-	private static final String DTO_NAME = "FavoriteDataTag";
+public class FavoriteDataHistoryDto extends AbstractDto {
+	private static final String DTO_NAME = "FavoriteDataHistory";
 
 	@DynamoDBIgnore
 	private String userId;
 	@DynamoDBIgnore
 	private String dataId;
-	@DynamoDBIgnore
-	private String tagId;
 	@DynamoDBAttribute
-	private String clipTime;
+	private String creatorId;
+	@DynamoDBAttribute
+	private String title;
+	@DynamoDBAttribute
+	private String thumbnailUrl;
+	@DynamoDBAttribute
+	private String contentUrl;
 	@DynamoDBTypeConvertedEnum
 	@DynamoDBAttribute
 	private FavoriteDataType dataType;
+	@DynamoDBAttribute
+	private String clipTime;
 	@DynamoDBAttribute
 	private Long ttl;
 
 	@DynamoDBHashKey
 	@Override
 	public String getPk() {
-		return KeyGenerator.createHashKey(DTO_NAME, userId, dataId);
+		return KeyGenerator.createHashKey(DTO_NAME, userId);
 	}
 
 	@Override
 	public void setPk(String hashKey) {
 		String[] keys = KeyGenerator.parseHashKey(DTO_NAME, hashKey);
 		this.userId = keys[0];
-		this.dataId = keys[1];
 	}
 
 	@DynamoDBRangeKey
 	@Override
 	public String getSk() {
-		return KeyGenerator.createRangeKey(tagId);
+		return KeyGenerator.createRangeKey(dataId);
 	}
 
 	@Override
 	public void setSk(String rangeKey) {
 		String[] keys = KeyGenerator.parseRangeKey(rangeKey);
-		this.tagId = keys[0];
+		this.dataId = keys[0];
 	}
 
 	@DynamoDBIndexHashKey(globalSecondaryIndexName = DynamoDBConstant.GSI_ONE_NAME)
 	public String getGsiOnePk() {
-		return KeyGenerator.createHashKey(DTO_NAME, userId, tagId);
+		// dataType will not set when query main table or lsi one
+		return KeyGenerator.createHashKey(DTO_NAME, userId, dataType == null ? null : dataType.getValue());
 	}
 
 	public void setGsiOnePk(String hashKey) {
@@ -81,20 +87,11 @@ public class FavoriteDataTagDto extends AbstractDto {
 	public void setGsiOneSk(String rangeKey) {
 	}
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = DynamoDBConstant.GSI_TWO_NAME)
-	public String getGsiTwoPk() {
-		// dataType will not set when query main table or gsi one
-		return KeyGenerator.createHashKey(DTO_NAME, userId, tagId, dataType == null ? null : dataType.getValue());
-	}
-
-	public void setGsiTwoPk(String hashKey) {
-	}
-
-	@DynamoDBIndexRangeKey(globalSecondaryIndexName = DynamoDBConstant.GSI_TWO_NAME)
-	public String getGsiTwoSk() {
+	@DynamoDBIndexRangeKey(localSecondaryIndexName = DynamoDBConstant.LSI_ONE_NAME)
+	public String getLsiOneSk() {
 		return KeyGenerator.createRangeKey(clipTime, dataId);
 	}
 
-	public void setGsiTwoSk(String rangeKey) {
+	public void setLsiOneSk(String rangeKey) {
 	}
 }
