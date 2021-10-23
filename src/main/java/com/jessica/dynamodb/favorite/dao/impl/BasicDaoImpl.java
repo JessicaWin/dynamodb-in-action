@@ -19,6 +19,11 @@ import com.jessica.dynamodb.favorite.dao.BasicDao;
 import com.jessica.dynamodb.favorite.data.LazyLoadResult;
 import com.jessica.dynamodb.favorite.dto.AbstractDto;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class BasicDaoImpl<T extends AbstractDto> implements BasicDao<T> {
 	protected DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(AmazonDynamoDBClientBuilder.standard().build());
 
